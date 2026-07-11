@@ -5,6 +5,7 @@ using Api.Contracts.Auth;
 using Api.Contracts.Users;
 using Application.Common;
 using Application.Users;
+using Domain.Users;
 using Infrastructure.Common;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
@@ -25,6 +26,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<CreateUserService>();
 builder.Services.AddScoped<AuthenticateService>();
+builder.Services.AddScoped<GetUsersService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -127,6 +129,34 @@ app.MapGet("/api/auth/whoami", (ClaimsPrincipal user) =>
     var rol = user.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
     return Results.Ok(new WhoAmIResponse(id, rol));
 }).RequireAuthorization().WithName("WhoAmI");
+
+app.MapGet("/api/users", async (HttpRequest request, GetUsersService service) =>
+{
+    var query = request.Query;
+
+    Role? rol = Enum.TryParse<Role>(query["rol"], ignoreCase: true, out var parsedRol) ? parsedRol : null;
+    UserStatus? estado = Enum.TryParse<UserStatus>(query["estado"], ignoreCase: true, out var parsedEstado) ? parsedEstado : null;
+    DateTime? fechaDesde = DateTime.TryParse(query["fechaDesde"], out var parsedDesde) ? parsedDesde : null;
+    DateTime? fechaHasta = DateTime.TryParse(query["fechaHasta"], out var parsedHasta) ? parsedHasta : null;
+    var page = int.TryParse(query["page"], out var parsedPage) ? parsedPage : 1;
+    var pageSize = int.TryParse(query["pageSize"], out var parsedPageSize) ? parsedPageSize : 20;
+
+    var result = await service.GetAsync(new GetUsersQuery(
+        rol, query["nombre"], query["email"], estado, fechaDesde, fechaHasta, page, pageSize));
+
+    if (!result.Succeeded)
+    {
+        return Results.BadRequest(new ErrorResponse(result.Error, null));
+    }
+
+    var response = new PagedUsersResponse(
+        result.Items.Select(UserResponse.FromEntity).ToList(),
+        result.TotalCount,
+        result.Page,
+        result.PageSize);
+
+    return Results.Ok(response);
+}).RequireAuthorization(policy => policy.RequireRole("Admin", "Editor")).WithName("GetUsers");
 
 // El AppDbContext queda registrado y listo. Cuando definas tu dominio y tu
 // primera migración, aplícala al arrancar (ej.):

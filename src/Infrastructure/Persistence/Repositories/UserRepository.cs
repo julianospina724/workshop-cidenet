@@ -19,6 +19,51 @@ public class UserRepository : IUserRepository
     public Task<User?> FindByNormalizedEmailAsync(string normalizedEmail) =>
         _db.Users.SingleOrDefaultAsync(u => u.Email == normalizedEmail);
 
+    public async Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(GetUsersQuery query)
+    {
+        var q = _db.Users.Where(u => u.Estado != UserStatus.Eliminado);
+
+        if (query.Rol.HasValue)
+        {
+            q = q.Where(u => u.Rol == query.Rol.Value);
+        }
+
+        if (query.Estado.HasValue)
+        {
+            q = q.Where(u => u.Estado == query.Estado.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Nombre))
+        {
+            var nombre = query.Nombre.ToLowerInvariant();
+            q = q.Where(u => u.Nombre.ToLower().Contains(nombre));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Email))
+        {
+            var email = query.Email.ToLowerInvariant();
+            q = q.Where(u => u.Email.Contains(email));
+        }
+
+        if (query.FechaDesde.HasValue)
+        {
+            q = q.Where(u => u.CreatedAt >= query.FechaDesde.Value);
+        }
+
+        if (query.FechaHasta.HasValue)
+        {
+            q = q.Where(u => u.CreatedAt <= query.FechaHasta.Value);
+        }
+
+        var total = await q.CountAsync();
+        var items = await q.OrderBy(u => u.Nombre)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync();
+
+        return (items, total);
+    }
+
     public async Task AddAsync(User user) => await _db.Users.AddAsync(user);
 
     public async Task SaveChangesAsync()

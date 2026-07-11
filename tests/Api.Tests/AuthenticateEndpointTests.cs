@@ -209,6 +209,9 @@ public class AuthenticateEndpointTests : IClassFixture<SqliteWebApplicationFacto
         public Task<User?> FindByNormalizedEmailAsync(string normalizedEmail) =>
             throw new InvalidOperationException("Fallo simulado para el test.");
 
+        public Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(GetUsersQuery query) =>
+            throw new InvalidOperationException("Fallo simulado para el test.");
+
         public Task AddAsync(User user) => throw new InvalidOperationException("Fallo simulado para el test.");
 
         public Task SaveChangesAsync() => throw new InvalidOperationException("Fallo simulado para el test.");

@@ -2,11 +2,11 @@ story_id: "US-002"
 titulo_historia: "Como Admin quiero ver una tabla paginada de usuarios con búsqueda por nombre/email y filtros por rol y por estado (activo/inactivo) para encontrar y gestionar cuentas rápidamente"
 criterios_aceptacion:
   escenarios_exito:
-    - "La tabla incluye filtros por rol, nombres, apellidos, correo electrónico y fechas de alta/actualización."
+    - "La tabla incluye filtros por rol, nombre (nombre completo), correo electrónico, estado (activo/inactivo) y fechas de alta/actualización."
     - "Permite ordenar por columnas."
     - "Incluye paginación."
     - "Acceso: Admin y Editor pueden ver esta tabla (Editor solo lectura); Viewer no tiene permiso sobre el recurso users, según la matriz del caso."
-    - "Orden por defecto (sin filtros aplicados): por nombres y apellidos, ascendente."
+    - "Orden por defecto (sin filtros aplicados): por nombre, ascendente."
     - "Paginación: el usuario elige la cantidad de registros a mostrar por página (no es un tamaño fijo)."
   validaciones_reglas:
     - "Los filtros se combinan entre sí (AND) — todos los criterios aplicados a la vez, no son excluyentes."

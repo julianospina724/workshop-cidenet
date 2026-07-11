@@ -11,13 +11,19 @@ Feature: Consultar usuarios (tabla)
   Scenario: Ver la tabla con el orden por defecto
     Given estoy autenticado como Admin
     When abro la tabla de usuarios sin aplicar ningún filtro
-    Then los usuarios se muestran ordenados por nombres y apellidos, de forma ascendente
+    Then los usuarios se muestran ordenados por nombre, de forma ascendente
 
   @story_id:US-002 @origin:discovery_inicial @priority:1 @complexity:medium
   Scenario: Combinar varios filtros a la vez
     Given estoy autenticado como Admin
     When filtro por rol "Editor" y busco el texto "juan" en el nombre
     Then la tabla muestra solo usuarios con rol "Editor" cuyo nombre contiene "juan"
+
+  @story_id:US-002 @origin:discovery_inicial @priority:2 @complexity:low
+  Scenario: Filtrar por estado
+    Given existen usuarios activos e inactivos
+    When filtro por estado "inactivo"
+    Then la tabla muestra solo usuarios con estado "inactivo"
 
   @story_id:US-002 @origin:discovery_inicial @priority:1 @complexity:low @data_driven
   Scenario Outline: Búsqueda parcial e insensible a mayúsculas

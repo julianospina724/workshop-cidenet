@@ -43,10 +43,11 @@
 **Done-when:** un test de integración hace login, recibe un token, lo usa en el header `Authorization: Bearer` de una petición a un endpoint protegido con `[Authorize]` de prueba, y confirma que `HttpContext.User` expone el id/rol correctos; una petición sin token (o con uno inválido/expirado) es rechazada con 401.
 **Verificado:** 31/31 tests en verde (5 nuevos en `JwtAuthenticationTests.cs`: token no vacío, token válido expone id/rol vía `GET /api/auth/whoami`, sin token → 401, token manipulado → 401, token expirado → 401 — este último craftea un JWT firmado con la misma clave pero `exp` en el pasado). Probado también end-to-end contra Docker. `JWT_SIGNING_KEY` configurable por variable de entorno (con default de desarrollo); agregada a `docker-compose.yml` con nota de que en un entorno real debe venir de un secreto gestionado.
 
-## Iteración 6 — US-002: Consultar usuarios (backend) ⚡
+## Iteración 6 — US-002: Consultar usuarios (backend) ⚡ ✅
 
-**Entregable:** `GET /api/users` con filtros combinables (rol, nombre, apellido, email, rango de fechas), búsqueda parcial insensible a mayúsculas, orden por columnas (default nombre+apellido ascendente), paginación con tamaño elegible, exclusión de usuarios `eliminado`, sin exponer la contraseña. Requiere JWT válido con rol Admin o Editor (Viewer no tiene permiso sobre `users`).
+**Entregable:** `GET /api/users` con filtros combinables (rol, nombre, email, estado, rango de fechas), búsqueda parcial insensible a mayúsculas, orden por columnas (default nombre ascendente), paginación con tamaño elegible, exclusión de usuarios `eliminado`, sin exponer la contraseña. Requiere JWT válido con rol Admin o Editor (Viewer no tiene permiso sobre `users`).
 **Done-when:** los escenarios de `US-002.feature` pasan (incluida la validación de rango de fechas invertido, el caso sin resultados, y el rechazo a Viewer).
+**Verificado:** 44/44 tests en verde (13 nuevos en `GetUsersEndpointTests.cs`). Probado también end-to-end contra Docker: Admin ve la tabla paginada, Viewer recibe 403. **Corrección menor:** `US-002.yaml`/`.feature` mencionaban "nombres, apellidos" como si fueran dos campos y no listaban explícitamente el filtro de estado (que sí estaba en la historia original) — se alinearon con el modelo real (un solo campo `Nombre`) y se agregó el filtro de estado.
 
 ## Iteración 7 — US-003: Editar cuenta (backend) 🔥
 
