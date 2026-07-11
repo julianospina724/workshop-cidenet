@@ -16,6 +16,9 @@ public class UserRepository : IUserRepository
     public Task<bool> EmailExistsAsync(string normalizedEmail) =>
         _db.Users.AnyAsync(u => u.Email == normalizedEmail);
 
+    public Task<User?> FindByNormalizedEmailAsync(string normalizedEmail) =>
+        _db.Users.SingleOrDefaultAsync(u => u.Email == normalizedEmail);
+
     public async Task AddAsync(User user) => await _db.Users.AddAsync(user);
 
     public async Task SaveChangesAsync()

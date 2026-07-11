@@ -30,10 +30,11 @@
 **Done-when:** los escenarios de `US-001.feature` (incluidos los negativos: contraseñas no coincidentes, campos inválidos, email duplicado, condición de carrera de email) pasan como tests de backend.
 **Verificado:** 15/15 tests en verde (9 nuevos en `CreateUserEndpointTests.cs`, vía `WebApplicationFactory` + SQLite en memoria). Probado también end-to-end contra el Postgres real de `docker compose`: `POST /api/users` → 201, email normalizado a minúsculas, contraseña guardada como hash PBKDF2 (nunca en la respuesta), email duplicado → 400 con mensaje general. **Corrección de la Iteración 2:** `User.Apellido` se elimina del modelo (migración `RemoveApellidoFromUser`) — el caso y el Gherkin siempre usaron un solo campo `nombre`, no nombre+apellido separados.
 
-## Iteración 4 — US-007: Autenticación y bloqueo (backend) 🔥
+## Iteración 4 — US-007: Autenticación y bloqueo (backend) 🔥 ✅
 
 **Entregable:** `POST /api/auth/login` — valida credenciales contra el hash, bloquea usuarios `inactivo`/`eliminado`, mensaje único anti-enumeración, bloqueo temporal de 15 min tras 3 intentos fallidos con reinicio del contador.
 **Done-when:** los escenarios de `US-007.feature` pasan, incluidos los de bloqueo y liberación automática.
+**Verificado:** 26/26 tests en verde (11 nuevos en `AuthenticateEndpointTests.cs`; se introdujo `IClock`/`FakeClock` para probar la liberación de bloqueo tras 15 min sin esperar de verdad). Probado también end-to-end contra Docker: login válido, 3 fallos consecutivos → bloqueo 423 incluso con contraseña correcta, mensaje anti-enumeración idéntico para credenciales inválidas/usuario inactivo.
 
 ## Iteración 5 — US-002: Consultar usuarios (backend) ⚡
 

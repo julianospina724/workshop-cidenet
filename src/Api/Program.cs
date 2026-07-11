@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using Api.Contracts.Users;
+using Application.Common;
 using Application.Users;
+using Infrastructure.Common;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Security;
@@ -14,7 +16,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
+builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<CreateUserService>();
+builder.Services.AddScoped<AuthenticateService>();
 
 const string FrontendCorsPolicy = "frontend";
 builder.Services.AddCors(options =>
@@ -68,6 +72,27 @@ app.MapPost("/api/users", async (CreateUserCommand command, CreateUserService se
     var response = UserResponse.FromEntity(result.User!);
     return Results.Created($"/api/users/{response.Id}", response);
 }).WithName("CreateUser");
+
+app.MapPost("/api/auth/login", async (AuthenticateCommand command, AuthenticateService service) =>
+{
+    var result = await service.AuthenticateAsync(command);
+
+    if (result.LockedOut)
+    {
+        return Results.Json(
+            new ErrorResponse("La cuenta está bloqueada temporalmente por intentos fallidos. Intenta de nuevo más tarde.", null),
+            statusCode: StatusCodes.Status423Locked);
+    }
+
+    if (!result.Succeeded)
+    {
+        return Results.Json(
+            new ErrorResponse("Email o contraseña incorrectos.", null),
+            statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    return Results.Ok(UserResponse.FromEntity(result.User!));
+}).WithName("Login");
 
 // El AppDbContext queda registrado y listo. Cuando definas tu dominio y tu
 // primera migración, aplícala al arrancar (ej.):

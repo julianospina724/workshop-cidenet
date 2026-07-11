@@ -176,6 +176,8 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
     {
         public Task<bool> EmailExistsAsync(string email) => Task.FromResult(false);
 
+        public Task<User?> FindByNormalizedEmailAsync(string normalizedEmail) => Task.FromResult<User?>(null);
+
         public Task AddAsync(User user) => throw new InvalidOperationException("Fallo simulado para el test.");
 
         public Task SaveChangesAsync() => throw new InvalidOperationException("Fallo simulado para el test.");

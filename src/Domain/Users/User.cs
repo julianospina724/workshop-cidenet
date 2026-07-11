@@ -36,4 +36,32 @@ public class User : Entity
             Estado = UserStatus.Activo,
         };
     }
+
+    public bool PuedeAutenticarse => Estado == UserStatus.Activo;
+
+    public bool IsLockedOut(DateTime nowUtc) => LockedUntilUtc.HasValue && LockedUntilUtc.Value > nowUtc;
+
+    public void ClearLockoutIfExpired(DateTime nowUtc)
+    {
+        if (LockedUntilUtc.HasValue && LockedUntilUtc.Value <= nowUtc)
+        {
+            FailedLoginAttempts = 0;
+            LockedUntilUtc = null;
+        }
+    }
+
+    public void RegisterFailedLoginAttempt(DateTime nowUtc)
+    {
+        FailedLoginAttempts++;
+        if (FailedLoginAttempts >= LoginLockoutPolicy.MaxFailedAttempts)
+        {
+            LockedUntilUtc = nowUtc.Add(LoginLockoutPolicy.LockoutDuration);
+        }
+    }
+
+    public void RegisterSuccessfulLogin()
+    {
+        FailedLoginAttempts = 0;
+        LockedUntilUtc = null;
+    }
 }
