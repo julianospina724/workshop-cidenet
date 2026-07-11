@@ -8,12 +8,14 @@ public class AuthenticateService
     private readonly IUserRepository _repository;
     private readonly IPasswordHasher _hasher;
     private readonly IClock _clock;
+    private readonly ITokenGenerator _tokenGenerator;
 
-    public AuthenticateService(IUserRepository repository, IPasswordHasher hasher, IClock clock)
+    public AuthenticateService(IUserRepository repository, IPasswordHasher hasher, IClock clock, ITokenGenerator tokenGenerator)
     {
         _repository = repository;
         _hasher = hasher;
         _clock = clock;
+        _tokenGenerator = tokenGenerator;
     }
 
     public async Task<AuthenticateResult> AuthenticateAsync(AuthenticateCommand command)
@@ -48,6 +50,7 @@ public class AuthenticateService
         user.RegisterSuccessfulLogin();
         await _repository.SaveChangesAsync();
 
-        return AuthenticateResult.Success(user);
+        var token = _tokenGenerator.GenerateToken(user);
+        return AuthenticateResult.Success(user, token);
     }
 }

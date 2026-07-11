@@ -23,6 +23,8 @@ services:
       CONNECTION_STRING: "Host=db;Port=5432;Database=workshop_cidenet;Username=postgres;Password=postgres"
       ASPNETCORE_ENVIRONMENT: Development
       FRONTEND_URL: "http://localhost:5173"
+      # Solo para desarrollo local. En un entorno real, este valor viene de un secreto gestionado, no del compose file.
+      JWT_SIGNING_KEY: "workshop-cidenet-dev-signing-key-do-not-use-in-prod"
     ports:
       - "5000:8080"
     depends_on:

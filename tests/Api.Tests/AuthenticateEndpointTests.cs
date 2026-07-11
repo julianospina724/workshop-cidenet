@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Api.Contracts.Auth;
 using Api.Contracts.Users;
 using Application.Users;
 using Domain.Users;
@@ -58,9 +59,10 @@ public class AuthenticateEndpointTests : IClassFixture<SqliteWebApplicationFacto
         var response = await _client.PostAsJsonAsync("/api/auth/login", new { Email = "login-valido@mail.com", Password = "Clave123$" });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<UserResponse>(JsonOptions);
+        var body = await response.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
         Assert.NotNull(body);
-        Assert.Equal("login-valido@mail.com", body!.Email);
+        Assert.False(string.IsNullOrWhiteSpace(body!.Token));
+        Assert.Equal("login-valido@mail.com", body.User.Email);
     }
 
     [Fact]

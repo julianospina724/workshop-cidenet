@@ -1,4 +1,7 @@
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
+using Api.Contracts.Auth;
 using Api.Contracts.Users;
 using Application.Common;
 using Application.Users;
@@ -6,7 +9,9 @@ using Infrastructure.Common;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +22,27 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
 builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<CreateUserService>();
 builder.Services.AddScoped<AuthenticateService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = JwtSettings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = JwtSettings.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SigningKey)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 const string FrontendCorsPolicy = "frontend";
 builder.Services.AddCors(options =>
@@ -57,6 +81,9 @@ app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 
 app.UseCors(FrontendCorsPolicy);
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
     .WithName("HealthCheck");
 
@@ -91,8 +118,15 @@ app.MapPost("/api/auth/login", async (AuthenticateCommand command, AuthenticateS
             statusCode: StatusCodes.Status401Unauthorized);
     }
 
-    return Results.Ok(UserResponse.FromEntity(result.User!));
+    return Results.Ok(new LoginResponse(result.Token!, UserResponse.FromEntity(result.User!)));
 }).WithName("Login");
+
+app.MapGet("/api/auth/whoami", (ClaimsPrincipal user) =>
+{
+    var id = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+    var rol = user.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+    return Results.Ok(new WhoAmIResponse(id, rol));
+}).RequireAuthorization().WithName("WhoAmI");
 
 // El AppDbContext queda registrado y listo. Cuando definas tu dominio y tu
 // primera migración, aplícala al arrancar (ej.):
