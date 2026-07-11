@@ -29,6 +29,7 @@ builder.Services.AddScoped<AuthenticateService>();
 builder.Services.AddScoped<GetUsersService>();
 builder.Services.AddScoped<EditUserService>();
 builder.Services.AddScoped<DeleteUserService>();
+builder.Services.AddScoped<EditProfileService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -200,6 +201,19 @@ app.MapDelete("/api/users/{id:guid}", async (Guid id, DeleteUserService service)
 
     return Results.NoContent();
 }).RequireAuthorization(policy => policy.RequireRole("Admin")).WithName("DeleteUser");
+
+app.MapPut("/api/users/me", async (EditProfileRequest body, ClaimsPrincipal caller, EditProfileService service) =>
+{
+    var callerId = Guid.Parse(caller.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var result = await service.EditAsync(new EditProfileCommand(callerId, body.Nombre, body.Email));
+
+    if (!result.Succeeded)
+    {
+        return Results.BadRequest(new ErrorResponse(result.Message, result.FieldErrors));
+    }
+
+    return Results.Ok(UserResponse.FromEntity(result.User!));
+}).RequireAuthorization().WithName("EditProfile");
 
 // El AppDbContext queda registrado y listo. Cuando definas tu dominio y tu
 // primera migración, aplícala al arrancar (ej.):

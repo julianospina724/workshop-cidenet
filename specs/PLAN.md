@@ -61,10 +61,11 @@
 **Done-when:** los escenarios de `US-004.feature` pasan, incluido el de eliminación ya realizada por otra sesión.
 **Verificado:** 60/60 tests en verde (7 nuevos en `DeleteUserEndpointTests.cs`, todos en verde en el primer intento). Probado también end-to-end contra Docker: 204 al eliminar, el usuario queda excluido de `GET /api/users`, y 404 al intentar eliminarlo de nuevo (idempotencia natural, sin código especial).
 
-## Iteración 9 — US-005: Editar perfil propio (backend) ⚡
+## Iteración 9 — US-005: Editar perfil propio (backend) ⚡ ✅
 
 **Entregable:** endpoint (o variante de US-003) para que cualquier usuario edite solo su propio registro (nombre, email), identificado por el `sub` del JWT — rol, estado y permisos bloqueados incluso vía manipulación directa.
 **Done-when:** los escenarios de `US-005.feature` pasan, incluidos los de intento de escalar privilegios y el conflicto con desactivación en paralelo.
+**Verificado:** 66/66 tests en verde (6 nuevos en `EditProfileEndpointTests.cs`). Endpoint dedicado `PUT /api/users/me` (en vez de reutilizar `PUT /api/users/{id}`): el id sale del JWT, nunca de la URL, y el contrato `EditProfileRequest` **no tiene campos Rol/Estado** — no hay superficie de ataque que rechazar, System.Text.Json simplemente ignora esos campos si alguien los manda. Verificado también end-to-end contra Docker (`"rol":"Admin"` enviado directamente al backend no tiene ningún efecto).
 
 ## Iteración 10 — US-006: Matriz de permisos (backend) ⚡
 
