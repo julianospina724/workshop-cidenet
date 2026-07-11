@@ -31,18 +31,8 @@ public class GetUsersEndpointTests : IClassFixture<SqliteWebApplicationFactory>
 
     private async Task<string> CreateUserAndLoginAsync(string email, string nombre = "Usuario Prueba", string rol = "Admin")
     {
-        await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = nombre,
-            Email = email,
-            Password = "Clave123$",
-            ConfirmPassword = "Clave123$",
-            Rol = rol,
-        });
-
-        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = "Clave123$" });
-        var body = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
-        return body!.Token;
+        var (_, token) = await TestUserFactory.CreateAndLoginAsync(_client, email, nombre, rol);
+        return token;
     }
 
     private HttpRequestMessage AuthorizedGet(string url, string token)
@@ -113,12 +103,12 @@ public class GetUsersEndpointTests : IClassFixture<SqliteWebApplicationFactory>
     }
 
     [Theory]
-    [InlineData("juan")]
-    [InlineData("JUAN")]
-    public async Task Busqueda_parcial_insensible_a_mayusculas(string textoBuscado)
+    [InlineData("juan", "1")]
+    [InlineData("JUAN", "2")]
+    public async Task Busqueda_parcial_insensible_a_mayusculas(string textoBuscado, string sufijo)
     {
-        var adminToken = await CreateUserAndLoginAsync("busqueda-admin@mail.com", "Admin Busqueda", "Admin");
-        await CreateUserAndLoginAsync("busqueda-juan-perez@mail.com", "Juan Pérez", "Editor");
+        var adminToken = await CreateUserAndLoginAsync($"busqueda-admin-{sufijo}@mail.com", "Admin Busqueda", "Admin");
+        await CreateUserAndLoginAsync($"busqueda-juan-perez-{sufijo}@mail.com", "Juan Pérez", "Editor");
 
         var response = await _client.SendAsync(AuthorizedGet($"/api/users?nombre={textoBuscado}", adminToken));
 

@@ -30,23 +30,8 @@ public class DeleteUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
         _client = factory.CreateClient();
     }
 
-    private async Task<(Guid Id, string Token)> CreateUserAndLoginAsync(string email, string nombre, string rol)
-    {
-        var createResponse = await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = nombre,
-            Email = email,
-            Password = "Clave123$",
-            ConfirmPassword = "Clave123$",
-            Rol = rol,
-        });
-        var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>(JsonOptions);
-
-        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = "Clave123$" });
-        var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
-
-        return (created!.Id, login!.Token);
-    }
+    private Task<(Guid Id, string Token)> CreateUserAndLoginAsync(string email, string nombre, string rol) =>
+        TestUserFactory.CreateAndLoginAsync(_client, email, nombre, rol);
 
     private HttpRequestMessage AuthorizedDelete(string url, string token)
     {
@@ -74,9 +59,15 @@ public class DeleteUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
     [Fact]
     public async Task No_se_puede_eliminar_al_unico_admin_activo()
     {
-        var (adminId, adminToken) = await CreateUserAndLoginAsync("unicoadmin-del@mail.com", "Unico Admin Delete", "Admin");
+        // Factory aislada (BD propia): el Admin sembrado por defecto también cuenta
+        // como Admin activo, así que necesitamos neutralizarlo también — algo que
+        // rompería a otros tests de esta clase si compartieran la misma BD.
+        await using var isolatedFactory = new SqliteWebApplicationFactory();
+        var isolatedClient = isolatedFactory.CreateClient();
 
-        using (var scope = _factory.Services.CreateScope())
+        var (adminId, adminToken) = await TestUserFactory.CreateAndLoginAsync(isolatedClient, "unicoadmin-del@mail.com", "Unico Admin Delete", "Admin");
+
+        using (var scope = isolatedFactory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var otrosAdmins = db.Users.Where(u => u.Rol == Role.Admin && u.Id != adminId && u.Estado == UserStatus.Activo);
@@ -88,7 +79,7 @@ public class DeleteUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
             await db.SaveChangesAsync();
         }
 
-        var response = await _client.SendAsync(AuthorizedDelete($"/api/users/{adminId}", adminToken));
+        var response = await isolatedClient.SendAsync(AuthorizedDelete($"/api/users/{adminId}", adminToken));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

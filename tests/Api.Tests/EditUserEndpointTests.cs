@@ -29,23 +29,8 @@ public class EditUserEndpointTests : IClassFixture<SqliteWebApplicationFactory>
         _client = factory.CreateClient();
     }
 
-    private async Task<(Guid Id, string Token)> CreateUserAndLoginAsync(string email, string nombre, string rol)
-    {
-        var createResponse = await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = nombre,
-            Email = email,
-            Password = "Clave123$",
-            ConfirmPassword = "Clave123$",
-            Rol = rol,
-        });
-        var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>(JsonOptions);
-
-        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = "Clave123$" });
-        var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
-
-        return (created!.Id, login!.Token);
-    }
+    private Task<(Guid Id, string Token)> CreateUserAndLoginAsync(string email, string nombre, string rol) =>
+        TestUserFactory.CreateAndLoginAsync(_client, email, nombre, rol);
 
     private HttpRequestMessage AuthorizedPut(string url, string token, object body)
     {
@@ -99,12 +84,15 @@ public class EditUserEndpointTests : IClassFixture<SqliteWebApplicationFactory>
     [Fact]
     public async Task El_unico_admin_activo_no_puede_autodesactivarse()
     {
-        var (adminId, adminToken) = await CreateUserAndLoginAsync("unicoadmin@mail.com", "Unico Admin", "Admin");
+        // Factory aislada (BD propia): el Admin sembrado por defecto también cuenta
+        // como Admin activo, así que necesitamos neutralizarlo también — algo que
+        // rompería a otros tests de esta clase si compartieran la misma BD.
+        await using var isolatedFactory = new SqliteWebApplicationFactory();
+        var isolatedClient = isolatedFactory.CreateClient();
 
-        // La fixture comparte base de datos entre los tests de esta clase, así que
-        // neutralizamos cualquier otro Admin creado por otros tests para que este
-        // sea, de verdad, el único Admin activo al momento de la aserción.
-        using (var scope = _factory.Services.CreateScope())
+        var (adminId, adminToken) = await TestUserFactory.CreateAndLoginAsync(isolatedClient, "unicoadmin@mail.com", "Unico Admin", "Admin");
+
+        using (var scope = isolatedFactory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
             var otrosAdmins = db.Users.Where(u => u.Rol == Role.Admin && u.Id != adminId && u.Estado == UserStatus.Activo);
@@ -116,7 +104,7 @@ public class EditUserEndpointTests : IClassFixture<SqliteWebApplicationFactory>
             await db.SaveChangesAsync();
         }
 
-        var response = await _client.SendAsync(AuthorizedPut($"/api/users/{adminId}", adminToken, new { Estado = "Inactivo" }));
+        var response = await isolatedClient.SendAsync(AuthorizedPut($"/api/users/{adminId}", adminToken, new { Estado = "Inactivo" }));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

@@ -33,18 +33,8 @@ public class PermissionsEndpointTests : IClassFixture<SqliteWebApplicationFactor
 
     private async Task<string> CreateUserAndLoginAsync(string email, string nombre, string rol)
     {
-        await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = nombre,
-            Email = email,
-            Password = "Clave123$",
-            ConfirmPassword = "Clave123$",
-            Rol = rol,
-        });
-
-        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = "Clave123$" });
-        var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
-        return login!.Token;
+        var (_, token) = await TestUserFactory.CreateAndLoginAsync(_client, email, nombre, rol);
+        return token;
     }
 
     private HttpRequestMessage AuthorizedGet(string url, string token)

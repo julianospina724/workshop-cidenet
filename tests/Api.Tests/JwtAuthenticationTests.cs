@@ -32,19 +32,8 @@ public class JwtAuthenticationTests : IClassFixture<SqliteWebApplicationFactory>
 
     private async Task<string> SeedUserAndLoginAsync(string email)
     {
-        await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = "Usuario JWT",
-            Email = email,
-            Password = "Clave123$",
-            ConfirmPassword = "Clave123$",
-            Rol = "Admin",
-        });
-
-        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = "Clave123$" });
-        loginResponse.EnsureSuccessStatusCode();
-        var body = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
-        return body!.Token;
+        var (_, token) = await TestUserFactory.CreateAndLoginAsync(_client, email, "Usuario JWT", "Admin");
+        return token;
     }
 
     [Fact]

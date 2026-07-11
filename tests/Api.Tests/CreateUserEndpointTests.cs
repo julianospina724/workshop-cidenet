@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -37,10 +38,18 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
         Rol = "Editor",
     };
 
+    private async Task<HttpResponseMessage> PostAsAdminAsync(object payload)
+    {
+        var adminToken = await TestUserFactory.LoginAsSeededAdminAsync(_client);
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/users") { Content = JsonContent.Create(payload) };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        return await _client.SendAsync(request);
+    }
+
     [Fact]
     public async Task Crear_cuenta_con_datos_validos_devuelve_201_y_queda_activa()
     {
-        var response = await _client.PostAsJsonAsync("/api/users", ValidPayload("crear-valido@mail.com"));
+        var response = await PostAsAdminAsync(ValidPayload("crear-valido@mail.com"));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -56,6 +65,20 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
     }
 
     [Fact]
+    public async Task Solo_admin_puede_crear_cuentas()
+    {
+        var sinToken = await _client.PostAsJsonAsync("/api/users", ValidPayload("sin-token-crear@mail.com"));
+        Assert.Equal(HttpStatusCode.Unauthorized, sinToken.StatusCode);
+
+        var (_, editorToken) = await TestUserFactory.CreateAndLoginAsync(_client, "editor-no-puede-crear@mail.com", "Editor No Crea", "Editor");
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/users") { Content = JsonContent.Create(ValidPayload("creado-por-editor@mail.com")) };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", editorToken);
+        var conEditor = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Forbidden, conEditor.StatusCode);
+    }
+
+    [Fact]
     public async Task La_contrasena_y_confirmacion_no_coinciden_devuelve_400()
     {
         var payload = new
@@ -67,7 +90,7 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
             Rol = "Editor",
         };
 
-        var response = await _client.PostAsJsonAsync("/api/users", payload);
+        var response = await PostAsAdminAsync(payload);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
@@ -89,7 +112,7 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
             _ => new { Nombre = "Ana Pérez", Email = $"formato-{valor}@mail.com", Password = valor, ConfirmPassword = valor, Rol = "Editor" },
         };
 
-        var response = await _client.PostAsJsonAsync("/api/users", payload);
+        var response = await PostAsAdminAsync(payload);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
@@ -102,9 +125,9 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
     public async Task Email_ya_registrado_devuelve_400_con_mensaje_general()
     {
         var email = "duplicado@mail.com";
-        await _client.PostAsJsonAsync("/api/users", ValidPayload(email));
+        await PostAsAdminAsync(ValidPayload(email));
 
-        var response = await _client.PostAsJsonAsync("/api/users", ValidPayload(email));
+        var response = await PostAsAdminAsync(ValidPayload(email));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
@@ -130,7 +153,12 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
             });
         });
 
-        var response = await brokenFactory.CreateClient().PostAsJsonAsync("/api/users", ValidPayload("fallo-general@mail.com"));
+        var brokenClient = brokenFactory.CreateClient();
+        var adminToken = await TestUserFactory.LoginAsSeededAdminAsync(_client);
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/users") { Content = JsonContent.Create(ValidPayload("fallo-general@mail.com")) };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+
+        var response = await brokenClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
     }
@@ -149,7 +177,7 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
             Rol = "Editor",
         };
 
-        var response = await _client.PostAsJsonAsync("/api/users", payload);
+        var response = await PostAsAdminAsync(payload);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         using var scope = _factory.Services.CreateScope();
@@ -161,7 +189,7 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
     [Fact]
     public async Task La_contrasena_nunca_se_retorna_en_la_respuesta_de_creacion()
     {
-        var response = await _client.PostAsJsonAsync("/api/users", ValidPayload("sin-password-en-respuesta@mail.com"));
+        var response = await PostAsAdminAsync(ValidPayload("sin-password-en-respuesta@mail.com"));
 
         var raw = await response.Content.ReadAsStringAsync();
         using var json = JsonDocument.Parse(raw);

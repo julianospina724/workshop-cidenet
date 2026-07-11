@@ -15,6 +15,7 @@ using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
@@ -107,7 +109,7 @@ app.MapPost("/api/users", async (CreateUserCommand command, CreateUserService se
 
     var response = UserResponse.FromEntity(result.User!);
     return Results.Created($"/api/users/{response.Id}", response);
-}).WithName("CreateUser");
+}).RequireAuthorization(policy => policy.RequireRole("Admin")).WithName("CreateUser");
 
 app.MapPost("/api/auth/login", async (AuthenticateCommand command, AuthenticateService service) =>
 {

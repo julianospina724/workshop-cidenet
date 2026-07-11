@@ -24,5 +24,6 @@ public class AppDbContext : DbContext
             .IsUnique();
 
         modelBuilder.Entity<PermissionMatrixEntry>().HasData(DefaultPermissionMatrix.Entries);
+        modelBuilder.Entity<User>().HasData(DefaultAdminSeed.Entry);
     }
 }

@@ -30,23 +30,8 @@ public class EditProfileEndpointTests : IClassFixture<SqliteWebApplicationFactor
         _client = factory.CreateClient();
     }
 
-    private async Task<(Guid Id, string Token)> CreateUserAndLoginAsync(string email, string nombre, string rol)
-    {
-        var createResponse = await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = nombre,
-            Email = email,
-            Password = "Clave123$",
-            ConfirmPassword = "Clave123$",
-            Rol = rol,
-        });
-        var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>(JsonOptions);
-
-        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = "Clave123$" });
-        var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions);
-
-        return (created!.Id, login!.Token);
-    }
+    private Task<(Guid Id, string Token)> CreateUserAndLoginAsync(string email, string nombre, string rol) =>
+        TestUserFactory.CreateAndLoginAsync(_client, email, nombre, rol);
 
     private HttpRequestMessage AuthorizedPutRaw(string token, string rawJsonBody)
     {

@@ -29,17 +29,9 @@ public class AuthenticateEndpointTests : IClassFixture<SqliteWebApplicationFacto
         _client = factory.CreateClient();
     }
 
-    private async Task SeedUserAsync(string email, string password = "Clave123$", UserStatus estado = UserStatus.Activo)
+    private async Task SeedUserAsync(string email, UserStatus estado = UserStatus.Activo)
     {
-        var createResponse = await _client.PostAsJsonAsync("/api/users", new
-        {
-            Nombre = "Usuario Prueba",
-            Email = email,
-            Password = password,
-            ConfirmPassword = password,
-            Rol = "Editor",
-        });
-        createResponse.EnsureSuccessStatusCode();
+        await TestUserFactory.CreateAsync(_client, email, "Usuario Prueba", "Editor");
 
         if (estado != UserStatus.Activo)
         {
