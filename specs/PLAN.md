@@ -55,10 +55,11 @@
 **Done-when:** los escenarios de `US-003.feature` pasan, incluidos los de autorización y los del último Admin activo.
 **Verificado:** 53/53 tests en verde (9 nuevos en `EditUserEndpointTests.cs`). Probado también end-to-end contra Docker. **Nota de diseño:** la edición del propio perfil por Editor/Viewer (US-005, Iteración 9) queda en un endpoint separado — este endpoint es exclusivamente de Admin, lo que simplifica la autorización a un `RequireRole("Admin")` en vez de lógica condicional por caller.
 
-## Iteración 8 — US-004: Eliminar cuenta (backend) 🔥
+## Iteración 8 — US-004: Eliminar cuenta (backend) 🔥 ✅
 
 **Entregable:** `DELETE /api/users/{id}` como eliminación lógica (estado `eliminado`, distinto de `inactivo`), bloqueo si es el único Admin activo, autorización solo Admin (vía JWT), idempotencia ante doble solicitud.
 **Done-when:** los escenarios de `US-004.feature` pasan, incluido el de eliminación ya realizada por otra sesión.
+**Verificado:** 60/60 tests en verde (7 nuevos en `DeleteUserEndpointTests.cs`, todos en verde en el primer intento). Probado también end-to-end contra Docker: 204 al eliminar, el usuario queda excluido de `GET /api/users`, y 404 al intentar eliminarlo de nuevo (idempotencia natural, sin código especial).
 
 ## Iteración 9 — US-005: Editar perfil propio (backend) ⚡
 
