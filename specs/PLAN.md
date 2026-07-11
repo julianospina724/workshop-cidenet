@@ -83,10 +83,11 @@
 
 ---
 
-## Iteración 12 — Frontend: Login 🔥
+## Iteración 12 — Frontend: Login 🔥 ✅
 
 **Entregable:** pantalla de login (US-007) — formulario, loading, mensaje de error único, aviso de bloqueo temporal, redirección tras éxito, guarda el JWT recibido (ej. en memoria/contexto de React) para las siguientes peticiones.
 **Done-when:** tests de componente de `US-007.feature` (los aplicables a UI) pasan.
+**Verificado:** 8/8 tests en verde (6 nuevos en `LoginPage.test.tsx`, más `App.test.tsx` actualizado para el nuevo enrutamiento). `AuthContext`/`ProtectedRoute` con `react-router-dom` para persistir el JWT (`localStorage`) y proteger `/`. Verificado visualmente con Playwright headless contra Docker: `/` sin sesión redirige a `/login`, credenciales inválidas muestran el error, y el login con el Admin sembrado redirige a la pantalla principal ("Bienvenido, Admin Inicial (Admin)").
 
 ## Iteración 13 — Frontend: Tabla de usuarios ⚡
 
