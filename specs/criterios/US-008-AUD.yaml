@@ -1,0 +1,21 @@
+story_id: "US-008-AUD"
+titulo_historia: "Como sistema quiero registrar en base de datos cada cambio aplicado a un registro de usuario para poder reconstruir después quién hizo qué y cuándo"
+criterios_aceptacion:
+  escenarios_exito:
+    - "Cada operación de escritura sobre un usuario (crear, editar, eliminar lógicamente, cambiar rol o estado) queda registrada en base de datos con: fecha y hora, el usuario que la realizó, y qué cambió (valores anterior/nuevo, al menos de forma resumida)."
+    - "El historial es consultable a nivel de base de datos (por ejemplo, vía consulta directa); no hay pantalla en este MVP."
+  validaciones_reglas:
+    - "El registro de auditoría se crea de forma atómica junto con el cambio que audita — no debe poder persistir el cambio sin su registro de auditoría, ni viceversa."
+    - "El registro de auditoría es append-only: una vez creado, no se edita ni se elimina."
+  manejo_errores:
+    - "Si falla el registro de auditoría, la operación de escritura que lo origina también falla (no se permite un cambio sin su rastro)."
+  requisitos_ux: []
+  casos_edge:
+    - "La eliminación lógica de un usuario (US-004) también genera su propio registro de auditoría, igual que crear/editar."
+    - "💡 [gap-MNT] Los registros de auditoría se conservan solo por 6 meses; pasado ese tiempo, se purgan (política de retención/ciclo de vida de la información)."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true

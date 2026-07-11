@@ -1,0 +1,33 @@
+story_id: "US-007"
+titulo_historia: "Como usuario del sistema quiero autenticarme con mis credenciales para acceder a la plataforma; el sistema debe impedir el acceso a usuarios inactivos"
+criterios_aceptacion:
+  escenarios_exito:
+    - "El usuario ingresa email y contraseña en el formulario de login."
+    - "El sistema valida las credenciales; si son correctas y el usuario está activo, se autentica y accede a la plataforma."
+  validaciones_reglas:
+    - "Email y contraseña son campos obligatorios."
+    - "Email: formato estándar, normalizado a minúsculas antes de comparar (consistente con US-001/US-003)."
+    - "Las credenciales se validan contra el hash almacenado — nunca se compara ni se transmite la contraseña en texto plano."
+    - "Un usuario con estado inactivo no puede autenticarse (R6), incluso si sus credenciales son correctas."
+    - "🔥 [gap-AUD] Un usuario en estado 'eliminado' (soft delete, ver US-004) tampoco puede autenticarse — incluso si aún recuerda sus credenciales."
+    - "🔥 [gap-MON] Tras 3 intentos fallidos de login consecutivos para la misma cuenta, esta se bloquea temporalmente por 15 minutos."
+    - "🔥 [gap-MON] El bloqueo se libera automáticamente una vez transcurridos los 15 minutos, sin intervención de un Admin."
+  manejo_errores:
+    - "Credenciales incorrectas (email no existe o contraseña no coincide): mensaje genérico único ('email o contraseña incorrectos'), sin indicar cuál de los dos falló."
+    - "Usuario inactivo con credenciales correctas: se rechaza el acceso con el mismo mensaje genérico que credenciales incorrectas, para no revelar el estado de la cuenta a quien intenta autenticarse (evitar enumeración de cuentas)."
+    - "Fallo general (ej. error de conexión/servidor): mensaje de error genérico distinto al de credenciales inválidas."
+    - "🔥 [gap-MON] Cuenta bloqueada temporalmente: mensaje indicando que la cuenta está bloqueada por intentos fallidos y que puede reintentar más tarde."
+  requisitos_ux:
+    - "Indicador de carga en el botón de login mientras se valida."
+    - "Redirección a la pantalla principal tras autenticación exitosa."
+    - "Mensaje de error visible bajo el formulario cuando la autenticación falla."
+  casos_edge:
+    - "No hay MFA en este MVP (fuera de alcance, según la nota INVEST de la historia) — sí hay bloqueo temporal por intentos fallidos (ver gap-MON)."
+    - "El email se normaliza a minúsculas también en el login, para consistencia con el registro/edición."
+    - "🔥 [gap-MON] El conteo de intentos fallidos se reinicia a cero tras un login exitoso o al liberarse el bloqueo temporal."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true

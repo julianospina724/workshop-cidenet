@@ -1,0 +1,35 @@
+story_id: "US-003"
+titulo_historia: "Como Admin quiero editar los datos, el rol y el estado de un usuario para mantener la información y los accesos al día"
+criterios_aceptacion:
+  escenarios_exito:
+    - "El Admin abre el formulario de edición precargado con los datos actuales (nombre, email, rol, estado)."
+    - "Edita los campos permitidos y guarda; el sistema confirma la actualización."
+    - "La contraseña no es editable desde este formulario (solo se define al crear la cuenta)."
+    - "Si el Admin está editando su propia cuenta, el selector de rol aparece deshabilitado, con un mensaje/tooltip explicando que no puede modificar su propio rol (R2)."
+  validaciones_reglas:
+    - "Nombre y apellido: obligatorio, no vacío (misma regla que US-001)."
+    - "Email: obligatorio, formato estándar, y debe seguir siendo único al cambiarlo (excluyendo el propio registro que se está editando)."
+    - "Rol: obligatorio, salvo cuando el usuario edita su propia cuenta, donde queda bloqueado a su valor actual."
+    - "Si el usuario editado es el único Admin activo, no se permite cambiar su rol a otro distinto ni su estado a inactivo, para no dejar el sistema sin Admin activo (extensión del principio de R1)."
+    - "🔥 [gap-SEC] Autorización server-side: el backend valida el rol/permiso del solicitante en cada request de edición — Admin puede editar cualquier cuenta; Editor/Viewer solo pueden editar la propia (y nunca su propio rol). No basta con ocultar controles en la UI."
+  manejo_errores:
+    - "Email duplicado (ya usado por otro usuario): mensaje general al intentar guardar."
+    - "Campo obligatorio vacío: marca inline al lado del campo (igual que en US-001)."
+    - "Intento de cambiar el propio rol vía manipulación directa (bypass de la UI): rechazado con mensaje explicando la restricción."
+    - "Intento de dejar sin Admin activo (cambiar rol/estado del único Admin): mensaje explicando que debe existir al menos un Admin activo."
+    - "Fallo general (ej. error de conexión/servidor): mensaje de error genérico."
+  requisitos_ux:
+    - "Indicador de carga mientras se guarda."
+    - "Mensaje general de éxito o fracaso al recibir la respuesta del backend."
+    - "El selector de rol aparece deshabilitado (con tooltip) cuando el Admin edita su propia cuenta."
+  casos_edge:
+    - "⚡ [gap-AUD] Antes de persistir, las cadenas de texto (nombre, apellido) se normalizan: trim de espacios al inicio/final y colapso de espacios múltiples entre palabras."
+    - "🔥 [gap-SEC] El formulario de edición nunca precarga ni muestra la contraseña actual — al no ser editable aquí, ni siquiera se consulta/retorna en la respuesta que alimenta el formulario."
+    - "El email se normaliza a minúsculas antes de guardar/comparar, igual que en la creación (US-001)."
+    - "Restricción de índice único en base de datos sobre email, igual que en US-001, para cubrir condiciones de carrera."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true

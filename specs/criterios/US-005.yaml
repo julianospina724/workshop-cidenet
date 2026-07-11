@@ -1,0 +1,32 @@
+story_id: "US-005"
+titulo_historia: "Como usuario de cualquier rol quiero editar mi propio perfil para mantener mis datos actualizados, sin poder cambiar mi propio rol ni mis permisos"
+criterios_aceptacion:
+  escenarios_exito:
+    - "El usuario accede a la edición de su propio perfil (nombre, email) y no a los de otros usuarios."
+    - "Edita los campos permitidos y guarda; el sistema confirma la actualización."
+    - "El formulario no incluye selector de rol ni acceso a permisos — solo datos personales (nombre, email)."
+  validaciones_reglas:
+    - "Nombre y apellido: obligatorio, no vacío (misma regla que US-001/US-003)."
+    - "Email: obligatorio, formato estándar, único al cambiarlo (excluyendo el propio registro)."
+    - "⚡ [gap-AUD] Antes de persistir, las cadenas de texto (nombre, apellido) se normalizan: trim de espacios al inicio/final y colapso de espacios múltiples entre palabras."
+    - "El rol no es editable desde este formulario (R2) — no aparece como campo, ni siquiera deshabilitado con el valor actual visible como referencia."
+    - "⚡ [gap-SEC] El estado (activo/inactivo) tampoco es editable desde el perfil propio — un usuario nunca puede autodesactivarse ni autoactivarse; solo un Admin cambia el estado de otros, vía US-003."
+    - "Los permisos no son accesibles ni visibles desde este formulario (R3) — su gestión vive en US-006."
+  manejo_errores:
+    - "Email duplicado: mensaje general al intentar guardar."
+    - "Campo obligatorio vacío: marca inline al lado del campo."
+    - "🔥 [gap-SEC] Intento de modificar el propio rol o permisos vía manipulación directa (bypass de la UI): rechazado con mensaje explicando la restricción — el backend valida esto en cada request, no depende de que la UI los oculte."
+    - "🔥 [gap-SEC] Autorización server-side: el backend valida que el usuario solo pueda editar su propio registro (por id de sesión) — nunca el de otro usuario, sin importar lo que envíe la petición."
+    - "Fallo general: mensaje de error genérico."
+  requisitos_ux:
+    - "Indicador de carga mientras se guarda."
+    - "Mensaje general de éxito o fracaso."
+  casos_edge:
+    - "El email se normaliza a minúsculas antes de guardar/comparar, igual que en US-001/US-003."
+    - "Si el usuario intenta guardar su perfil justo cuando un Admin lo desactiva en paralelo, la operación se rechaza con un mensaje indicando que la sesión/cuenta ya no está activa."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true

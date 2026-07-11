@@ -1,0 +1,28 @@
+story_id: "US-006"
+titulo_historia: "Como Admin quiero activar/desactivar permisos por rol en una matriz (recurso × acción CRUD) para ajustar qué puede hacer cada rol sobre cada recurso"
+criterios_aceptacion:
+  escenarios_exito:
+    - "El Admin abre la vista de matriz de permisos: filas por rol (Admin/Editor/Viewer), columnas por recurso (users/roles/permissions/reports) y acción CRUD, con toggles."
+    - "El Admin activa/desactiva un toggle y guarda explícitamente los cambios (botón 'Guardar cambios', no persistencia automática al primer clic)."
+    - "Tras guardar, se muestra confirmación y la matriz refleja el nuevo estado."
+    - "La matriz del brief (tabla del caso) es el estado inicial por defecto; los permisos son configurables desde aquí en adelante."
+  validaciones_reglas:
+    - "🔥 [gap-SEC] Autorización server-side: el backend valida que el solicitante tenga rol Admin antes de aceptar cualquier cambio en la matriz de permisos — no basta con que la UI solo la muestre a Admin."
+    - "Un usuario no puede asignarse permisos a sí mismo (R3): si el Admin edita la fila correspondiente a su propio rol, esos toggles quedan deshabilitados."
+    - "No se pueden crear ni eliminar roles ni recursos — solo alternar permisos existentes sobre los 3 roles y 4 recursos fijos del caso."
+  manejo_errores:
+    - "Intento de modificar permisos de su propio rol (bypass de la UI): rechazado con mensaje explicando que no puede asignarse permisos a sí mismo (R3)."
+    - "Fallo general al guardar: mensaje de error genérico y los toggles vuelven a su estado anterior (no queda un estado intermedio inconsistente)."
+  requisitos_ux:
+    - "Indicador de carga mientras se guarda."
+    - "Confirmación visual de guardado exitoso."
+    - "Los toggles de la fila correspondiente al propio rol del Admin aparecen deshabilitados, con tooltip explicando R3."
+  casos_edge:
+    - "Si dos Admins editan la matriz al mismo tiempo, gana el último guardado (last-write-wins) — no hay merge ni detección de conflicto en el MVP."
+    - "Revocar el permiso de lectura de 'reports' a Viewer es una acción permitida (el Admin es responsable de la configuración); no hay restricción especial más allá de R3."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true

@@ -1,0 +1,30 @@
+story_id: "US-001"
+titulo_historia: "Como Admin quiero crear una cuenta de usuario (nombre, email, contraseña, rol y estado inicial) para dar acceso a nuevas personas dentro del sistema"
+criterios_aceptacion:
+  escenarios_exito:
+    - "El Admin llena el formulario (nombre, email, contraseña, confirmar contraseña, rol) y lo envía."
+    - "El sistema valida los campos y, si son correctos, crea la cuenta."
+    - "La cuenta nace activa de inmediato — el usuario puede autenticarse apenas se crea (sin paso de activación posterior)."
+    - "El formulario incluye un campo 'confirmar contraseña'; contraseña y confirmación deben coincidir para poder enviar."
+  validaciones_reglas:
+    - "Nombre y apellido: campo obligatorio, no puede estar vacío."
+    - "Email: obligatorio, debe tener formato estándar (usuario@dominio)."
+    - "Contraseña: mínimo 8 caracteres, con al menos una mayúscula, una minúscula, un número y un símbolo del conjunto: $ & * # @."
+  manejo_errores:
+    - "Email duplicado: al intentar guardar, se muestra un mensaje general indicando que el correo ya está registrado (no es un mensaje inline sobre el campo)."
+    - "Campo obligatorio vacío: se marca individualmente al lado de cada campo faltante, indicando el error de diligenciamiento."
+    - "Fallo general (ej. error de conexión/servidor): se muestra un mensaje de error genérico."
+  requisitos_ux:
+    - "Mientras se procesa la creación se muestra un indicador de carga (loading)."
+    - "Al recibir la respuesta del backend, se muestra el mensaje general correspondiente (de éxito o de fracaso)."
+  casos_edge:
+    - "⚡ [gap-AUD] Antes de persistir, las cadenas de texto (nombre, apellido) se normalizan: se recortan espacios al inicio/final (trim) y se colapsan espacios múltiples entre palabras a uno solo."
+    - "🔥 [gap-SEC] La contraseña (ni su hash) nunca se retorna en ninguna respuesta del sistema — ni siquiera en la respuesta de la propia creación. Es un campo de solo escritura."
+    - "El email se normaliza siempre a minúsculas antes de guardar/comparar (ej. 'Juan@Mail.com' y 'juan@mail.com' se consideran el mismo correo)."
+    - "A nivel de base de datos existe una restricción de índice único sobre el email, para evitar duplicados incluso ante doble submit o condiciones de carrera (no depender solo de la validación de aplicación)."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true

@@ -1,0 +1,31 @@
+story_id: "US-004"
+titulo_historia: "Como Admin quiero eliminar una cuenta de usuario, con confirmación explícita, para revocar el acceso de personas que ya no deben tenerlo"
+criterios_aceptacion:
+  escenarios_exito:
+    - "El Admin selecciona 'eliminar' en la fila de un usuario dentro de la tabla (US-002)."
+    - "Se abre un modal de confirmación que muestra la información del usuario (nombre, email, rol) y advertencias si aplica (ej. si es el único Admin)."
+    - "El Admin confirma explícitamente (acción separada de un solo clic accidental) y la cuenta se elimina."
+    - "Tras eliminar, la tabla se actualiza y se muestra un mensaje de éxito."
+  validaciones_reglas:
+    - "🔥 [gap-AUD] La eliminación es lógica (soft delete): el registro permanece en la base de datos por auditoría, marcado en un estado 'eliminado' distinto de 'inactivo'."
+    - "🔥 [gap-AUD] Un usuario en estado 'eliminado' no puede autenticarse ni recibir cambios posteriores (equivalente o más estricto que 'inactivo', pero irreversible desde los formularios normales)."
+    - "🔥 [gap-AUD] Los usuarios en estado 'eliminado' se excluyen por completo de la tabla de US-002 — no aparecen ni con filtros, solo existen en la base de datos."
+    - "🔥 [gap-SEC] Autorización server-side: el backend valida que el solicitante tenga rol Admin antes de permitir la eliminación — no basta con ocultar el botón en la UI."
+    - "🔥 [gap-USR] No se puede eliminar un usuario Admin si es el único Admin actualmente ACTIVO en el sistema — un Admin inactivo no cuenta como protección (refina R1: la regla mira Admins activos, no solo el rol)."
+    - "La eliminación requiere confirmación explícita dentro del modal — no basta con un único clic en el botón de la fila."
+  manejo_errores:
+    - "Intento de eliminar el único Admin activo: mensaje de error explicando que debe existir al menos un Admin activo, y no se elimina la cuenta."
+    - "Fallo general (ej. error de conexión/servidor): mensaje de error genérico."
+  requisitos_ux:
+    - "Indicador de carga mientras se procesa la eliminación."
+    - "Mensaje de éxito tras eliminar, con actualización inmediata de la tabla."
+    - "El modal muestra una advertencia y deshabilita el botón de confirmar si el usuario es el único Admin."
+  casos_edge:
+    - "Doble clic en confirmar no genera dos intentos de eliminación (la acción es idempotente)."
+    - "Intentar eliminar un usuario que ya fue eliminado por otra sesión en paralelo: se muestra un mensaje indicando que el usuario ya no existe, en vez de un error genérico."
+validacion_smart:
+  specific: true
+  measurable: true
+  achievable: true
+  relevant: true
+  testable: true
