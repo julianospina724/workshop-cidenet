@@ -1,6 +1,7 @@
 using Domain.Audit;
 using Domain.Permissions;
 using Domain.Users;
+using Infrastructure.Common;
 using Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ public class DomainPersistenceTests : IDisposable
             .UseSqlite(_connection)
             .Options;
 
-        _context = new AppDbContext(options);
+        _context = new AppDbContext(options, new NullCurrentUserAccessor());
         _context.Database.EnsureCreated();
     }
 

@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 using Api.Contracts.Auth;
 using Api.Contracts.Permissions;
 using Api.Contracts.Users;
+using Api.Security;
+using Application.Audit;
 using Application.Common;
 using Application.Permissions;
 using Application.Users;
@@ -25,8 +27,12 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
 builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
+builder.Services.AddScoped<AuditRetentionService>();
 builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<CreateUserService>();
 builder.Services.AddScoped<AuthenticateService>();

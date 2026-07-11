@@ -1,3 +1,4 @@
+using Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -18,6 +19,6 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
             .UseNpgsql(connectionString)
             .Options;
 
-        return new AppDbContext(options);
+        return new AppDbContext(options, new NullCurrentUserAccessor());
     }
 }

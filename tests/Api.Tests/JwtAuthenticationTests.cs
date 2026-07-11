@@ -73,7 +73,12 @@ public class JwtAuthenticationTests : IClassFixture<SqliteWebApplicationFactory>
     public async Task Token_manipulado_devuelve_401()
     {
         var token = await SeedUserAndLoginAsync("jwt-manipulado@mail.com");
-        var tamperedToken = token[..^1] + (token[^1] == 'a' ? 'b' : 'a');
+
+        // Cambiamos un carácter en el medio del token (no el último): el último
+        // caracter de la firma en Base64URL a veces cae en bits de relleno no
+        // significativos, y no siempre invalida la firma al decodificarse.
+        var middle = token.Length / 2;
+        var tamperedToken = token[..middle] + (token[middle] == 'a' ? 'b' : 'a') + token[(middle + 1)..];
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/auth/whoami");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tamperedToken);

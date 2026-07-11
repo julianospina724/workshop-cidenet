@@ -73,10 +73,13 @@
 **Done-when:** los escenarios de `US-006.feature` pasan.
 **Verificado:** 72/72 tests en verde (7 nuevos en `PermissionsEndpointTests.cs`). Matriz por defecto (48 entradas: 3 roles × 4 recursos × 4 acciones) sembrada vía EF Core `HasData` con la matriz exacta del caso, aplicada en migración `SeedDefaultPermissionMatrix` contra Postgres y verificada con `psql`. "No crear/eliminar roles o recursos" queda garantizado por diseño (son enums fijos — un valor inválido ni siquiera deserializa). Probado también end-to-end contra Docker.
 
-## Iteración 11 — US-008-AUD: Auditoría transversal (backend) 💡
+## Iteración 11 — US-008-AUD: Auditoría transversal (backend) 💡 ✅
 
 **Entregable:** instrumentar las escrituras de las iteraciones 3, 7, 8 y 10 para que cada una genere su `AuditLog` de forma atómica (falla la operación si falla el registro); registros append-only; rutina de purga a 6 meses (puede quedar como job/función, sin necesidad de scheduler real en el MVP).
 **Done-when:** los escenarios de `US-008-AUD.feature` pasan.
+**Verificado:** 78/78 tests en verde (5 nuevos en `AuditLogTests.cs`). Implementado de forma transversal: `AppDbContext.SaveChangesAsync` override que inspecciona el `ChangeTracker` (User/PermissionMatrixEntry) y genera el `AuditLog` correspondiente en el mismo `SaveChanges` — atómico por construcción (misma transacción implícita de EF Core), sin tocar cada servicio individualmente. `AuditRetentionService` para la purga a 6 meses (sin endpoint, se invoca como rutina de mantenimiento). Verificado también end-to-end contra Docker (`psql` mostró el registro de auditoría creado automáticamente al crear un usuario).
+
+**Hallazgo y corrección durante esta iteración:** `POST /api/users` nunca quedó protegido por rol desde la Iteración 3 — cualquiera podía crear cuentas sin autenticarse, lo cual además impedía saber "quién" auditar en la creación. Se corrigió exigiendo rol Admin (`RequireRole`), sembrando un Admin inicial vía migración (`admin@workshop-cidenet.local` / `Admin123$`) para resolver el problema del huevo y la gallina. Esto obligó a refactorizar los 8 archivos de test existentes (centralizado en `TestUserFactory`). De paso se agregó Scalar como UI interactiva de OpenAPI (`/scalar/v1`), a pedido del alumno.
 
 ---
 
