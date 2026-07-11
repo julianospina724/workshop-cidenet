@@ -49,10 +49,11 @@
 **Done-when:** los escenarios de `US-002.feature` pasan (incluida la validación de rango de fechas invertido, el caso sin resultados, y el rechazo a Viewer).
 **Verificado:** 44/44 tests en verde (13 nuevos en `GetUsersEndpointTests.cs`). Probado también end-to-end contra Docker: Admin ve la tabla paginada, Viewer recibe 403. **Corrección menor:** `US-002.yaml`/`.feature` mencionaban "nombres, apellidos" como si fueran dos campos y no listaban explícitamente el filtro de estado (que sí estaba en la historia original) — se alinearon con el modelo real (un solo campo `Nombre`) y se agregó el filtro de estado.
 
-## Iteración 7 — US-003: Editar cuenta (backend) 🔥
+## Iteración 7 — US-003: Editar cuenta (backend) 🔥 ✅
 
-**Entregable:** `PUT/PATCH /api/users/{id}` — autorización server-side vía JWT (Admin cualquiera, Editor/Viewer solo su propia cuenta y nunca su rol), bloqueo de la regla "último Admin activo" al cambiar rol/estado, unicidad de email al editar, normalización de texto.
+**Entregable:** `PUT /api/users/{id}` — solo Admin (vía JWT; Editor/Viewer reciben 403), ningún usuario puede cambiar su propio rol (ni siquiera un Admin editándose a sí mismo), bloqueo de la regla "último Admin activo" al cambiar rol/estado, unicidad de email al editar, normalización de texto, respuesta sin exponer la contraseña.
 **Done-when:** los escenarios de `US-003.feature` pasan, incluidos los de autorización y los del último Admin activo.
+**Verificado:** 53/53 tests en verde (9 nuevos en `EditUserEndpointTests.cs`). Probado también end-to-end contra Docker. **Nota de diseño:** la edición del propio perfil por Editor/Viewer (US-005, Iteración 9) queda en un endpoint separado — este endpoint es exclusivamente de Admin, lo que simplifica la autorización a un `RequireRole("Admin")` en vez de lógica condicional por caller.
 
 ## Iteración 8 — US-004: Eliminar cuenta (backend) 🔥
 

@@ -19,6 +19,11 @@ public class UserRepository : IUserRepository
     public Task<User?> FindByNormalizedEmailAsync(string normalizedEmail) =>
         _db.Users.SingleOrDefaultAsync(u => u.Email == normalizedEmail);
 
+    public Task<User?> FindByIdAsync(Guid id) => _db.Users.FindAsync(id).AsTask();
+
+    public Task<int> CountActiveAdminsAsync() =>
+        _db.Users.CountAsync(u => u.Rol == Role.Admin && u.Estado == UserStatus.Activo);
+
     public async Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(GetUsersQuery query)
     {
         var q = _db.Users.Where(u => u.Estado != UserStatus.Eliminado);

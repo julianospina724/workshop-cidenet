@@ -27,6 +27,7 @@ builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<CreateUserService>();
 builder.Services.AddScoped<AuthenticateService>();
 builder.Services.AddScoped<GetUsersService>();
+builder.Services.AddScoped<EditUserService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -157,6 +158,30 @@ app.MapGet("/api/users", async (HttpRequest request, GetUsersService service) =>
 
     return Results.Ok(response);
 }).RequireAuthorization(policy => policy.RequireRole("Admin", "Editor")).WithName("GetUsers");
+
+app.MapPut("/api/users/{id:guid}", async (Guid id, EditUserRequest body, ClaimsPrincipal caller, EditUserService service) =>
+{
+    var callerId = Guid.Parse(caller.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var command = new EditUserCommand(id, body.Nombre, body.Email, body.Rol, body.Estado);
+    var result = await service.EditAsync(callerId, command);
+
+    if (result.NotFound)
+    {
+        return Results.NotFound();
+    }
+
+    if (result.Forbidden)
+    {
+        return Results.Json(new ErrorResponse(result.Message, null), statusCode: StatusCodes.Status403Forbidden);
+    }
+
+    if (!result.Succeeded)
+    {
+        return Results.BadRequest(new ErrorResponse(result.Message, result.FieldErrors));
+    }
+
+    return Results.Ok(UserResponse.FromEntity(result.User!));
+}).RequireAuthorization(policy => policy.RequireRole("Admin")).WithName("EditUser");
 
 // El AppDbContext queda registrado y listo. Cuando definas tu dominio y tu
 // primera migración, aplícala al arrancar (ej.):

@@ -178,6 +178,10 @@ public class CreateUserEndpointTests : IClassFixture<SqliteWebApplicationFactory
 
         public Task<User?> FindByNormalizedEmailAsync(string normalizedEmail) => Task.FromResult<User?>(null);
 
+        public Task<User?> FindByIdAsync(Guid id) => Task.FromResult<User?>(null);
+
+        public Task<int> CountActiveAdminsAsync() => Task.FromResult(0);
+
         public Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(GetUsersQuery query) =>
             throw new InvalidOperationException("Fallo simulado para el test.");
 
