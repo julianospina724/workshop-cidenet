@@ -67,10 +67,11 @@
 **Done-when:** los escenarios de `US-005.feature` pasan, incluidos los de intento de escalar privilegios y el conflicto con desactivación en paralelo.
 **Verificado:** 66/66 tests en verde (6 nuevos en `EditProfileEndpointTests.cs`). Endpoint dedicado `PUT /api/users/me` (en vez de reutilizar `PUT /api/users/{id}`): el id sale del JWT, nunca de la URL, y el contrato `EditProfileRequest` **no tiene campos Rol/Estado** — no hay superficie de ataque que rechazar, System.Text.Json simplemente ignora esos campos si alguien los manda. Verificado también end-to-end contra Docker (`"rol":"Admin"` enviado directamente al backend no tiene ningún efecto).
 
-## Iteración 10 — US-006: Matriz de permisos (backend) ⚡
+## Iteración 10 — US-006: Matriz de permisos (backend) ⚡ ✅
 
 **Entregable:** `GET/PUT /api/permissions` — solo Admin (vía JWT), bloqueo de autoasignación (fila del propio rol), sin crear/eliminar roles o recursos.
 **Done-when:** los escenarios de `US-006.feature` pasan.
+**Verificado:** 72/72 tests en verde (7 nuevos en `PermissionsEndpointTests.cs`). Matriz por defecto (48 entradas: 3 roles × 4 recursos × 4 acciones) sembrada vía EF Core `HasData` con la matriz exacta del caso, aplicada en migración `SeedDefaultPermissionMatrix` contra Postgres y verificada con `psql`. "No crear/eliminar roles o recursos" queda garantizado por diseño (son enums fijos — un valor inválido ni siquiera deserializa). Probado también end-to-end contra Docker.
 
 ## Iteración 11 — US-008-AUD: Auditoría transversal (backend) 💡
 

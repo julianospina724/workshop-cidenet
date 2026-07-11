@@ -22,5 +22,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        modelBuilder.Entity<PermissionMatrixEntry>().HasData(DefaultPermissionMatrix.Entries);
     }
 }

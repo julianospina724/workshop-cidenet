@@ -2,8 +2,10 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using Api.Contracts.Auth;
+using Api.Contracts.Permissions;
 using Api.Contracts.Users;
 using Application.Common;
+using Application.Permissions;
 using Application.Users;
 using Domain.Users;
 using Infrastructure.Common;
@@ -21,6 +23,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
@@ -30,6 +33,7 @@ builder.Services.AddScoped<GetUsersService>();
 builder.Services.AddScoped<EditUserService>();
 builder.Services.AddScoped<DeleteUserService>();
 builder.Services.AddScoped<EditProfileService>();
+builder.Services.AddScoped<PermissionsService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -214,6 +218,26 @@ app.MapPut("/api/users/me", async (EditProfileRequest body, ClaimsPrincipal call
 
     return Results.Ok(UserResponse.FromEntity(result.User!));
 }).RequireAuthorization().WithName("EditProfile");
+
+app.MapGet("/api/permissions", async (PermissionsService service) =>
+{
+    var entries = await service.GetMatrixAsync();
+    return Results.Ok(new PermissionMatrixResponse(entries.Select(PermissionEntryResponse.FromEntity).ToList()));
+}).RequireAuthorization(policy => policy.RequireRole("Admin")).WithName("GetPermissions");
+
+app.MapPut("/api/permissions", async (UpdatePermissionsRequest body, ClaimsPrincipal caller, PermissionsService service) =>
+{
+    var callerRole = Enum.Parse<Role>(caller.FindFirstValue(ClaimTypes.Role)!);
+    var changes = body.Changes.Select(c => new PermissionChange(c.Rol, c.Recurso, c.Accion, c.Permitido)).ToList();
+    var result = await service.UpdateAsync(new UpdatePermissionsCommand(callerRole, changes));
+
+    if (result.Forbidden)
+    {
+        return Results.Json(new ErrorResponse(result.Message, null), statusCode: StatusCodes.Status403Forbidden);
+    }
+
+    return Results.Ok();
+}).RequireAuthorization(policy => policy.RequireRole("Admin")).WithName("UpdatePermissions");
 
 // El AppDbContext queda registrado y listo. Cuando definas tu dominio y tu
 // primera migración, aplícala al arrancar (ej.):
