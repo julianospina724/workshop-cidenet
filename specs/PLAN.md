@@ -12,7 +12,7 @@
 **Done-when:** `docker compose up --build` levanta `db`, `api` y `frontend`; `GET http://localhost:5000/health` responde `{"status":"ok"}`; `http://localhost:5173` carga el frontend mínimo.
 **Verificado:** `docker compose ps` — `db` healthy, `api` y `frontend` up; `/health` → `{"status":"ok"}` (200); `http://localhost:5173` → 200.
 
-## Iteración 2 — Modelo de dominio y migración inicial 🔥
+## Iteración 2 — Modelo de dominio y migración inicial 🔥 ✅
 
 **Entregable:** entidades de dominio y su mapeo EF, sin endpoints todavía:
 - `User` (nombre, apellido, email, passwordHash, rol, estado: `activo`/`inactivo`/`eliminado`, contador de intentos fallidos, timestamp de bloqueo).
@@ -22,6 +22,7 @@
 - Migración de EF Core aplicada contra Postgres.
 
 **Done-when:** tests de integración mínimos verifican que el `AppDbContext` persiste y recupera un `User`, un `PermissionMatrix` y un `AuditLog`; la migración corre limpia sobre una base vacía.
+**Verificado:** 5/5 tests en verde (`tests/Api.Tests/DomainPersistenceTests.cs`, SQLite en memoria — incluye el rechazo de email duplicado). Migración `20260711154649_InitialUsersPermissionsAudit` generada y aplicada contra el Postgres de `docker compose` (tablas `Users`, `PermissionMatrixEntries`, `AuditLogs`, índice único `IX_Users_Email` confirmados con `psql`). Seed de la matriz de permisos por defecto se deja para la Iteración 9 (US-006), cuando se implemente su lectura/escritura.
 
 ## Iteración 3 — US-001: Crear cuenta (backend) 🔥
 
