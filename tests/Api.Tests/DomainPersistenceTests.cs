@@ -37,8 +37,7 @@ public class DomainPersistenceTests : IDisposable
     {
         var user = new User
         {
-            Nombre = "Ana",
-            Apellido = "Pérez",
+            Nombre = "Ana Pérez",
             Email = "ana.perez@mail.com",
             PasswordHash = "hash-no-reversible",
             Rol = Role.Editor,
@@ -61,8 +60,7 @@ public class DomainPersistenceTests : IDisposable
     {
         _context.Users.Add(new User
         {
-            Nombre = "Ana",
-            Apellido = "Pérez",
+            Nombre = "Ana Pérez",
             Email = "ana.perez@mail.com",
             PasswordHash = "hash-1",
             Rol = Role.Viewer,
@@ -72,8 +70,7 @@ public class DomainPersistenceTests : IDisposable
 
         _context.Users.Add(new User
         {
-            Nombre = "Otra",
-            Apellido = "Persona",
+            Nombre = "Otra Persona",
             Email = "ana.perez@mail.com",
             PasswordHash = "hash-2",
             Rol = Role.Viewer,

@@ -24,10 +24,11 @@
 **Done-when:** tests de integración mínimos verifican que el `AppDbContext` persiste y recupera un `User`, un `PermissionMatrix` y un `AuditLog`; la migración corre limpia sobre una base vacía.
 **Verificado:** 5/5 tests en verde (`tests/Api.Tests/DomainPersistenceTests.cs`, SQLite en memoria — incluye el rechazo de email duplicado). Migración `20260711154649_InitialUsersPermissionsAudit` generada y aplicada contra el Postgres de `docker compose` (tablas `Users`, `PermissionMatrixEntries`, `AuditLogs`, índice único `IX_Users_Email` confirmados con `psql`). Seed de la matriz de permisos por defecto se deja para la Iteración 9 (US-006), cuando se implemente su lectura/escritura.
 
-## Iteración 3 — US-001: Crear cuenta (backend) 🔥
+## Iteración 3 — US-001: Crear cuenta (backend) 🔥 ✅
 
 **Entregable:** `POST /api/users` con todas las reglas de `features/US-001.feature`: validación de campos, complejidad de contraseña, hash (nunca se retorna), unicidad de email (normalizado), normalización de nombre/apellido, estado inicial activo.
 **Done-when:** los escenarios de `US-001.feature` (incluidos los negativos: contraseñas no coincidentes, campos inválidos, email duplicado, condición de carrera de email) pasan como tests de backend.
+**Verificado:** 15/15 tests en verde (9 nuevos en `CreateUserEndpointTests.cs`, vía `WebApplicationFactory` + SQLite en memoria). Probado también end-to-end contra el Postgres real de `docker compose`: `POST /api/users` → 201, email normalizado a minúsculas, contraseña guardada como hash PBKDF2 (nunca en la respuesta), email duplicado → 400 con mensaje general. **Corrección de la Iteración 2:** `User.Apellido` se elimina del modelo (migración `RemoveApellidoFromUser`) — el caso y el Gherkin siempre usaron un solo campo `nombre`, no nombre+apellido separados.
 
 ## Iteración 4 — US-007: Autenticación y bloqueo (backend) 🔥
 
