@@ -6,10 +6,11 @@
 
 ---
 
-## Iteración 1 — Infraestructura 🔥
+## Iteración 1 — Infraestructura 🔥 ✅
 
 **Entregable:** levantar el stack completo (Postgres + API + frontend) con Docker.
 **Done-when:** `docker compose up --build` levanta `db`, `api` y `frontend`; `GET http://localhost:5000/health` responde `{"status":"ok"}`; `http://localhost:5173` carga el frontend mínimo.
+**Verificado:** `docker compose ps` — `db` healthy, `api` y `frontend` up; `/health` → `{"status":"ok"}` (200); `http://localhost:5173` → 200.
 
 ## Iteración 2 — Modelo de dominio y migración inicial 🔥
 
