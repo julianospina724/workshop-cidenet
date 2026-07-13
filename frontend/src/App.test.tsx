@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider } from "./auth/AuthContext";
+import * as apiClient from "./api/client";
 import App from "./App";
 
 function renderApp(initialPath = "/") {
@@ -31,7 +32,8 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /iniciar sesión/i })).toBeInTheDocument();
   });
 
-  it("muestra la pantalla principal cuando ya hay una sesión activa", () => {
+  it("muestra la pantalla principal (tabla de usuarios) cuando ya hay una sesión activa", async () => {
+    vi.spyOn(apiClient, "getUsers").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 20 });
     localStorage.setItem(
       "workshop-cidenet-auth",
       JSON.stringify({ token: "fake-token", user: { id: "1", nombre: "Ana", email: "ana@mail.com", rol: "Admin", estado: "Activo" } }),
@@ -39,6 +41,6 @@ describe("App", () => {
 
     renderApp("/");
 
-    expect(screen.getByText(/Workshop AI-First/i)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("heading", { name: /usuarios/i })).toBeInTheDocument());
   });
 });

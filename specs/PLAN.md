@@ -89,10 +89,11 @@
 **Done-when:** tests de componente de `US-007.feature` (los aplicables a UI) pasan.
 **Verificado:** 8/8 tests en verde (6 nuevos en `LoginPage.test.tsx`, más `App.test.tsx` actualizado para el nuevo enrutamiento). `AuthContext`/`ProtectedRoute` con `react-router-dom` para persistir el JWT (`localStorage`) y proteger `/`. Verificado visualmente con Playwright headless contra Docker: `/` sin sesión redirige a `/login`, credenciales inválidas muestran el error, y el login con el Admin sembrado redirige a la pantalla principal ("Bienvenido, Admin Inicial (Admin)").
 
-## Iteración 13 — Frontend: Tabla de usuarios ⚡
+## Iteración 13 — Frontend: Tabla de usuarios ⚡ ✅
 
 **Entregable:** pantalla de US-002 — filtros, búsqueda, orden, paginación, spinner, mensaje sin resultados, acciones por fila (enlazan a editar/eliminar).
 **Done-when:** tests de componente de `US-002.feature` pasan.
+**Verificado:** 16/16 tests en verde (8 nuevos en `UsersTablePage.test.tsx`, todos en verde a la primera). Reemplaza el `HomePage` placeholder de la Iteración 12 como contenido de `/`. **Nota de alcance:** las acciones por fila (editar/eliminar) se dejan para las Iteraciones 14/15, que las construyen junto con su comportamiento — no tenía sentido agregar botones inertes ahora. Verificado visualmente con Playwright headless contra Docker: 3 usuarios sembrados se muestran correctamente, y el filtro por rol "Admin" reduce la tabla a 1 fila.
 
 ## Iteración 14 — Frontend: Formulario crear/editar usuario 🔥
 

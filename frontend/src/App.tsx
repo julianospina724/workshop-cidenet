@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import HomePage from "./pages/Home/HomePage";
 import LoginPage from "./pages/Login/LoginPage";
+import UsersTablePage from "./pages/Users/UsersTablePage";
 import "./App.css";
 
 export default function App() {
@@ -12,7 +12,7 @@ export default function App() {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <UsersTablePage />
           </ProtectedRoute>
         }
       />

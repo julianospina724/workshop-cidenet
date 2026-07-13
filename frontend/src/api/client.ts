@@ -46,3 +46,53 @@ export async function login(email: string, password: string): Promise<LoginRespo
 
   return response.json();
 }
+
+export interface UserRecord {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+  estado: string;
+  createdAt: string;
+}
+
+export interface UsersQuery {
+  rol?: string;
+  nombre?: string;
+  email?: string;
+  estado?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
+  page: number;
+  pageSize: number;
+}
+
+export interface PagedUsers {
+  items: UserRecord[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export async function getUsers(query: UsersQuery, token: string): Promise<PagedUsers> {
+  const params = new URLSearchParams();
+  if (query.rol) params.set("rol", query.rol);
+  if (query.nombre) params.set("nombre", query.nombre);
+  if (query.email) params.set("email", query.email);
+  if (query.estado) params.set("estado", query.estado);
+  if (query.fechaDesde) params.set("fechaDesde", query.fechaDesde);
+  if (query.fechaHasta) params.set("fechaHasta", query.fechaHasta);
+  params.set("page", String(query.page));
+  params.set("pageSize", String(query.pageSize));
+
+  const response = await fetch(`${API_BASE_URL}/api/users?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
+  }
+
+  return response.json();
+}
