@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { ApiError, getUsers, type PagedUsers, type UsersQuery } from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 
@@ -84,6 +85,7 @@ export default function UsersTablePage() {
         <button type="button" onClick={logout}>
           Cerrar sesión
         </button>
+        {user?.rol === "Admin" && <Link to="/users/new">+ Nuevo usuario</Link>}
       </header>
 
       <form onSubmit={handleFilterSubmit}>
@@ -157,6 +159,7 @@ export default function UsersTablePage() {
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Fecha de alta</th>
+                {user?.rol === "Admin" && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -167,6 +170,13 @@ export default function UsersTablePage() {
                   <td>{item.rol}</td>
                   <td>{item.estado}</td>
                   <td>{new Date(item.createdAt).toLocaleDateString()}</td>
+                  {user?.rol === "Admin" && (
+                    <td>
+                      <Link to={`/users/${item.id}/edit`} state={{ user: item }}>
+                        Editar
+                      </Link>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

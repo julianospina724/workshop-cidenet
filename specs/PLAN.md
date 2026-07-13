@@ -95,10 +95,12 @@
 **Done-when:** tests de componente de `US-002.feature` pasan.
 **Verificado:** 16/16 tests en verde (8 nuevos en `UsersTablePage.test.tsx`, todos en verde a la primera). Reemplaza el `HomePage` placeholder de la Iteración 12 como contenido de `/`. **Nota de alcance:** las acciones por fila (editar/eliminar) se dejan para las Iteraciones 14/15, que las construyen junto con su comportamiento — no tenía sentido agregar botones inertes ahora. Verificado visualmente con Playwright headless contra Docker: 3 usuarios sembrados se muestran correctamente, y el filtro por rol "Admin" reduce la tabla a 1 fila.
 
-## Iteración 14 — Frontend: Formulario crear/editar usuario 🔥
+## Iteración 14 — Frontend: Formulario crear/editar usuario 🔥 ✅
 
 **Entregable:** pantalla de US-001 + US-003 (comparten formulario) — validaciones visibles, confirmar-contraseña al crear, selector de rol deshabilitado en autoedición, mensajes de error inline y generales.
 **Done-when:** tests de componente de `US-001.feature` y `US-003.feature` (los aplicables a UI) pasan.
+**Verificado:** 29/29 tests en verde (13 nuevos en `UserFormPage.test.tsx`, un componente para crear y editar). Validación 100% client-side (nombre, email, contraseña con la misma política que el backend) para que las reglas de formato "no envíen el formulario", tal como pide el Gherkin — el email duplicado y el fallo general sí dependen del backend y se muestran vía el mensaje/`fieldErrors` de la respuesta. El id a editar viaja por `location.state` (sin necesitar un endpoint `GET /api/users/{id}` que no existía). Conectado a la tabla: botón "+ Nuevo usuario" y "Editar" por fila (solo visibles para Admin). Verificado visualmente con Playwright contra Docker: crear "Carlos Playwright" como Editor, editarlo a Viewer, y ver el cambio reflejado en la tabla.
+**Gotcha:** el input `type="email"` dispara validación nativa del navegador (jsdom la implementa) que bloqueaba el submit antes de que la validación JS corriera — se agregó `noValidate` al formulario.
 
 ## Iteración 15 — Frontend: Modal de eliminación ⚡
 

@@ -10,10 +10,12 @@ export async function checkHealth(): Promise<{ status: string }> {
 
 export class ApiError extends Error {
   status: number;
+  fieldErrors?: Record<string, string>;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, fieldErrors?: Record<string, string>) {
     super(message);
     this.status = status;
+    this.fieldErrors = fieldErrors;
   }
 }
 
@@ -41,7 +43,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status, body?.fieldErrors);
   }
 
   return response.json();
@@ -92,6 +94,51 @@ export async function getUsers(query: UsersQuery, token: string): Promise<PagedU
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
+  }
+
+  return response.json();
+}
+
+export interface CreateUserPayload {
+  nombre: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  rol: string;
+}
+
+export async function createUser(payload: CreateUserPayload, token: string): Promise<UserRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/users`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status, body?.fieldErrors);
+  }
+
+  return response.json();
+}
+
+export interface EditUserPayload {
+  nombre: string;
+  email: string;
+  rol?: string;
+  estado?: string;
+}
+
+export async function editUser(id: string, payload: EditUserPayload, token: string): Promise<UserRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status, body?.fieldErrors);
   }
 
   return response.json();
