@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { ApiError, getUsers, type PagedUsers, type UsersQuery } from "../../api/client";
+import { ApiError, getUsers, type PagedUsers, type UserRecord, type UsersQuery } from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
+import DeleteUserModal from "./DeleteUserModal";
 
 interface Filters {
   rol: string;
@@ -22,6 +23,8 @@ export default function UsersTablePage() {
   const [data, setData] = useState<PagedUsers | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserRecord | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (!token) {
@@ -62,7 +65,7 @@ export default function UsersTablePage() {
     return () => {
       cancelled = true;
     };
-  }, [appliedFilters, page, pageSize, token]);
+  }, [appliedFilters, page, pageSize, token, refreshTrigger]);
 
   function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -174,7 +177,10 @@ export default function UsersTablePage() {
                     <td>
                       <Link to={`/users/${item.id}/edit`} state={{ user: item }}>
                         Editar
-                      </Link>
+                      </Link>{" "}
+                      <button type="button" onClick={() => setUserToDelete(item)}>
+                        Eliminar
+                      </button>
                     </td>
                   )}
                 </tr>
@@ -209,6 +215,18 @@ export default function UsersTablePage() {
             </button>
           </div>
         </>
+      )}
+
+      {userToDelete && token && (
+        <DeleteUserModal
+          user={userToDelete}
+          token={token}
+          onCancel={() => setUserToDelete(null)}
+          onDeleted={() => {
+            setUserToDelete(null);
+            setRefreshTrigger((current) => current + 1);
+          }}
+        />
       )}
     </main>
   );

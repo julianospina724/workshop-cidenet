@@ -102,10 +102,11 @@
 **Verificado:** 29/29 tests en verde (13 nuevos en `UserFormPage.test.tsx`, un componente para crear y editar). Validación 100% client-side (nombre, email, contraseña con la misma política que el backend) para que las reglas de formato "no envíen el formulario", tal como pide el Gherkin — el email duplicado y el fallo general sí dependen del backend y se muestran vía el mensaje/`fieldErrors` de la respuesta. El id a editar viaja por `location.state` (sin necesitar un endpoint `GET /api/users/{id}` que no existía). Conectado a la tabla: botón "+ Nuevo usuario" y "Editar" por fila (solo visibles para Admin). Verificado visualmente con Playwright contra Docker: crear "Carlos Playwright" como Editor, editarlo a Viewer, y ver el cambio reflejado en la tabla.
 **Gotcha:** el input `type="email"` dispara validación nativa del navegador (jsdom la implementa) que bloqueaba el submit antes de que la validación JS corriera — se agregó `noValidate` al formulario.
 
-## Iteración 15 — Frontend: Modal de eliminación ⚡
+## Iteración 15 — Frontend: Modal de eliminación ⚡ ✅
 
 **Entregable:** modal de confirmación de US-004 — info del usuario, advertencia y bloqueo si es el único Admin activo.
 **Done-when:** tests de componente de `US-004.feature` pasan.
+**Verificado:** 36/36 tests en verde (7 nuevos en `DeleteUserModal.test.tsx`, todos en verde a la primera). **Decisión de diseño:** en vez de pre-calcular "es el único Admin activo" en el frontend (poco confiable con datos paginados/filtrados), el modal intenta la eliminación y, si el backend la rechaza (400), muestra ese mensaje sin cerrarse — mismo patrón que ya usamos en el formulario de edición para la misma regla. Conectado a la tabla: botón "Eliminar" por fila (solo Admin), que al confirmar refresca la tabla. Verificado visualmente con Playwright contra Docker: cancelar mantiene al usuario, confirmar lo elimina y desaparece de la tabla.
 
 ## Iteración 16 — Frontend: Perfil propio 💡
 

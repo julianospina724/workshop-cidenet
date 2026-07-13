@@ -143,3 +143,15 @@ export async function editUser(id: string, payload: EditUserPayload, token: stri
 
   return response.json();
 }
+
+export async function deleteUser(id: string, token: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
+  }
+}
