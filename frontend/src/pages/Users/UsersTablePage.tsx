@@ -88,6 +88,7 @@ export default function UsersTablePage() {
         <button type="button" onClick={logout}>
           Cerrar sesión
         </button>
+        <Link to="/profile">Mi perfil</Link>
         {user?.rol === "Admin" && <Link to="/users/new">+ Nuevo usuario</Link>}
       </header>
 

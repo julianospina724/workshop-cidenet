@@ -108,10 +108,11 @@
 **Done-when:** tests de componente de `US-004.feature` pasan.
 **Verificado:** 36/36 tests en verde (7 nuevos en `DeleteUserModal.test.tsx`, todos en verde a la primera). **Decisión de diseño:** en vez de pre-calcular "es el único Admin activo" en el frontend (poco confiable con datos paginados/filtrados), el modal intenta la eliminación y, si el backend la rechaza (400), muestra ese mensaje sin cerrarse — mismo patrón que ya usamos en el formulario de edición para la misma regla. Conectado a la tabla: botón "Eliminar" por fila (solo Admin), que al confirmar refresca la tabla. Verificado visualmente con Playwright contra Docker: cancelar mantiene al usuario, confirmar lo elimina y desaparece de la tabla.
 
-## Iteración 16 — Frontend: Perfil propio 💡
+## Iteración 16 — Frontend: Perfil propio 💡 ✅
 
 **Entregable:** pantalla de US-005 — solo nombre/email editables.
 **Done-when:** tests de componente de `US-005.feature` pasan.
+**Verificado:** 43/43 tests en verde (7 nuevos en `ProfilePage.test.tsx`, todos en verde a la primera). `AuthContext` se extendió con `updateUser` para refrescar la sesión (estado + `localStorage`) tras guardar, sin tocar el token. La pantalla solo expone nombre/email — sin campos de rol ni estado, reforzando la restricción ya aplicada en el backend (`EditProfileRequest` sin esos campos). Enlace "Mi perfil" agregado al header de la tabla de usuarios. Verificado visualmente con Playwright contra Docker: login como Admin sembrado, edición de nombre, regreso a la pantalla principal con el header ya actualizado, persistencia tras recargar, y validación de nombre vacío sin enviar el formulario.
 
 ## Iteración 17 — Frontend: Matriz de permisos 💡
 

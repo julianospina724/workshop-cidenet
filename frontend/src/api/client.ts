@@ -155,3 +155,23 @@ export async function deleteUser(id: string, token: string): Promise<void> {
     throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
   }
 }
+
+export interface EditProfilePayload {
+  nombre: string;
+  email: string;
+}
+
+export async function editProfile(payload: EditProfilePayload, token: string): Promise<UserRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status, body?.fieldErrors);
+  }
+
+  return response.json();
+}
