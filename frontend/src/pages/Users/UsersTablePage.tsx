@@ -90,6 +90,7 @@ export default function UsersTablePage() {
         </button>
         <Link to="/profile">Mi perfil</Link>
         {user?.rol === "Admin" && <Link to="/users/new">+ Nuevo usuario</Link>}
+        {user?.rol === "Admin" && <Link to="/permissions">Matriz de permisos</Link>}
       </header>
 
       <form onSubmit={handleFilterSubmit}>

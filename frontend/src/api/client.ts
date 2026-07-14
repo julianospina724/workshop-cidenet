@@ -175,3 +175,40 @@ export async function editProfile(payload: EditProfilePayload, token: string): P
 
   return response.json();
 }
+
+export interface PermissionEntry {
+  rol: string;
+  recurso: string;
+  accion: string;
+  permitido: boolean;
+}
+
+export interface PermissionMatrixResponse {
+  entries: PermissionEntry[];
+}
+
+export async function getPermissions(token: string): Promise<PermissionMatrixResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/permissions`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
+  }
+
+  return response.json();
+}
+
+export async function updatePermissions(changes: PermissionEntry[], token: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/permissions`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ changes }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new ApiError(body?.message ?? GENERIC_ERROR_MESSAGE, response.status);
+  }
+}

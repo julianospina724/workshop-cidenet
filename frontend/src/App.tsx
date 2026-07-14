@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import LoginPage from "./pages/Login/LoginPage";
+import PermissionsPage from "./pages/Permissions/PermissionsPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import UserFormPage from "./pages/Users/UserFormPage";
 import UsersTablePage from "./pages/Users/UsersTablePage";
@@ -39,6 +40,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/permissions"
+        element={
+          <ProtectedRoute>
+            <PermissionsPage />
           </ProtectedRoute>
         }
       />
