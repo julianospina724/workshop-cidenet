@@ -7,7 +7,7 @@ criterios_aceptacion:
     - "La contraseña no es editable desde este formulario (solo se define al crear la cuenta)."
     - "Si el Admin está editando su propia cuenta, el selector de rol aparece deshabilitado, con un mensaje/tooltip explicando que no puede modificar su propio rol (R2)."
   validaciones_reglas:
-    - "Nombre y apellido: obligatorio, no vacío (misma regla que US-001)."
+    - "Nombre: obligatorio, no vacío (misma regla que US-001)."
     - "Email: obligatorio, formato estándar, y debe seguir siendo único al cambiarlo (excluyendo el propio registro que se está editando)."
     - "Rol: obligatorio, salvo cuando el usuario edita su propia cuenta, donde queda bloqueado a su valor actual."
     - "Si el usuario editado es el único Admin activo, no se permite cambiar su rol a otro distinto ni su estado a inactivo, para no dejar el sistema sin Admin activo (extensión del principio de R1)."
@@ -23,7 +23,7 @@ criterios_aceptacion:
     - "Mensaje general de éxito o fracaso al recibir la respuesta del backend."
     - "El selector de rol aparece deshabilitado (con tooltip) cuando el Admin edita su propia cuenta."
   casos_edge:
-    - "⚡ [gap-AUD] Antes de persistir, las cadenas de texto (nombre, apellido) se normalizan: trim de espacios al inicio/final y colapso de espacios múltiples entre palabras."
+    - "⚡ [gap-AUD] Antes de persistir, la cadena de texto del nombre se normaliza: trim de espacios al inicio/final y colapso de espacios múltiples entre palabras."
     - "🔥 [gap-SEC] El formulario de edición nunca precarga ni muestra la contraseña actual — al no ser editable aquí, ni siquiera se consulta/retorna en la respuesta que alimenta el formulario."
     - "El email se normaliza a minúsculas antes de guardar/comparar, igual que en la creación (US-001)."
     - "Restricción de índice único en base de datos sobre email, igual que en US-001, para cubrir condiciones de carrera."

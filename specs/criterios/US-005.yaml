@@ -6,9 +6,9 @@ criterios_aceptacion:
     - "Edita los campos permitidos y guarda; el sistema confirma la actualización."
     - "El formulario no incluye selector de rol ni acceso a permisos — solo datos personales (nombre, email)."
   validaciones_reglas:
-    - "Nombre y apellido: obligatorio, no vacío (misma regla que US-001/US-003)."
+    - "Nombre: obligatorio, no vacío (misma regla que US-001/US-003)."
     - "Email: obligatorio, formato estándar, único al cambiarlo (excluyendo el propio registro)."
-    - "⚡ [gap-AUD] Antes de persistir, las cadenas de texto (nombre, apellido) se normalizan: trim de espacios al inicio/final y colapso de espacios múltiples entre palabras."
+    - "⚡ [gap-AUD] Antes de persistir, la cadena de texto del nombre se normaliza: trim de espacios al inicio/final y colapso de espacios múltiples entre palabras."
     - "El rol no es editable desde este formulario (R2) — no aparece como campo, ni siquiera deshabilitado con el valor actual visible como referencia."
     - "⚡ [gap-SEC] El estado (activo/inactivo) tampoco es editable desde el perfil propio — un usuario nunca puede autodesactivarse ni autoactivarse; solo un Admin cambia el estado de otros, vía US-003."
     - "Los permisos no son accesibles ni visibles desde este formulario (R3) — su gestión vive en US-006."

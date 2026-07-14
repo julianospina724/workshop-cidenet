@@ -26,7 +26,7 @@ Explícitas del caso original:
 Descubiertas durante Criterios y Completitud:
 - La contraseña requiere mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (`$ & * # @`); se confirma con un campo duplicado.
 - El email se normaliza siempre a minúsculas antes de guardar o comparar; existe una restricción de índice único a nivel de base de datos.
-- Las cadenas de texto (nombre, apellido) se normalizan antes de persistir: trim y colapso de espacios múltiples.
+- La cadena de texto del nombre se normaliza antes de persistir: trim y colapso de espacios múltiples.
 - La regla del "último Admin" en realidad protege al último Admin **activo** — un Admin inactivo no cuenta como protección; aplica tanto a eliminar como a inactivar/cambiar de rol.
 - La contraseña (o su hash) nunca se retorna en ninguna respuesta del sistema — es un campo de solo escritura.
 - Toda acción de escritura valida la autorización en el **backend**, sin depender de que la interfaz oculte controles: Admin gestiona cualquier cuenta; Editor/Viewer solo la propia (nunca su rol ni su estado); solo Admin toca la matriz de permisos.
@@ -49,18 +49,18 @@ Descubiertas durante Criterios y Completitud:
 ## Pantallas
 
 ### Tabla de usuarios (US-002)
-- Columnas: nombre, apellido, email, rol, estado, fecha de alta/actualización.
-- Filtros: rol, nombres, apellidos, email, rango de fechas; búsqueda parcial insensible a mayúsculas; filtros combinados con AND.
-- Orden por columnas; por defecto, nombres+apellidos ascendente. Paginación con tamaño elegible por el usuario.
+- Columnas: nombre, email, rol, estado, fecha de alta/actualización.
+- Filtros: rol, nombre, email, rango de fechas; búsqueda parcial insensible a mayúsculas; filtros combinados con AND.
+- Orden por columnas; por defecto, nombre ascendente. Paginación con tamaño elegible por el usuario.
 - Estados: spinner de carga; mensaje si no hay resultados; mensaje general de error técnico.
 
 ### Formulario de creación/edición (US-001, US-003)
-- Campos: nombre, apellido, email, contraseña + confirmación (solo al crear), rol, estado.
+- Campos: nombre, email, contraseña + confirmación (solo al crear), rol, estado.
 - Validaciones visibles: campos obligatorios marcados inline; contraseña con reglas de complejidad; selector de rol deshabilitado al autoeditarse.
 - Estados: loading al guardar; mensaje general de éxito/fracaso.
 
 ### Perfil propio (US-005)
-- Campos: nombre, apellido, email — sin rol, sin estado, sin permisos.
+- Campos: nombre, email — sin rol, sin estado, sin permisos.
 - Mismas validaciones de formato que el formulario de Admin.
 
 ### Matriz de permisos (US-006)

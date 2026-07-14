@@ -7,7 +7,7 @@ criterios_aceptacion:
     - "La cuenta nace activa de inmediato — el usuario puede autenticarse apenas se crea (sin paso de activación posterior)."
     - "El formulario incluye un campo 'confirmar contraseña'; contraseña y confirmación deben coincidir para poder enviar."
   validaciones_reglas:
-    - "Nombre y apellido: campo obligatorio, no puede estar vacío."
+    - "Nombre: campo obligatorio, no puede estar vacío."
     - "Email: obligatorio, debe tener formato estándar (usuario@dominio)."
     - "Contraseña: mínimo 8 caracteres, con al menos una mayúscula, una minúscula, un número y un símbolo del conjunto: $ & * # @."
   manejo_errores:
@@ -18,7 +18,7 @@ criterios_aceptacion:
     - "Mientras se procesa la creación se muestra un indicador de carga (loading)."
     - "Al recibir la respuesta del backend, se muestra el mensaje general correspondiente (de éxito o de fracaso)."
   casos_edge:
-    - "⚡ [gap-AUD] Antes de persistir, las cadenas de texto (nombre, apellido) se normalizan: se recortan espacios al inicio/final (trim) y se colapsan espacios múltiples entre palabras a uno solo."
+    - "⚡ [gap-AUD] Antes de persistir, la cadena de texto del nombre se normaliza: se recortan espacios al inicio/final (trim) y se colapsan espacios múltiples entre palabras a uno solo."
     - "🔥 [gap-SEC] La contraseña (ni su hash) nunca se retorna en ninguna respuesta del sistema — ni siquiera en la respuesta de la propia creación. Es un campo de solo escritura."
     - "El email se normaliza siempre a minúsculas antes de guardar/comparar (ej. 'Juan@Mail.com' y 'juan@mail.com' se consideran el mismo correo)."
     - "A nivel de base de datos existe una restricción de índice único sobre el email, para evitar duplicados incluso ante doble submit o condiciones de carrera (no depender solo de la validación de aplicación)."

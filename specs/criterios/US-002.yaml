@@ -11,7 +11,7 @@ criterios_aceptacion:
   validaciones_reglas:
     - "Los filtros se combinan entre sí (AND) — todos los criterios aplicados a la vez, no son excluyentes."
     - "El filtro de fechas (alta/actualización) siempre es un rango (desde/hasta), no una fecha exacta."
-    - "La búsqueda por nombre/apellido/email es parcial (contiene el texto) e insensible a mayúsculas/minúsculas."
+    - "La búsqueda por nombre/email es parcial (contiene el texto) e insensible a mayúsculas/minúsculas."
   manejo_errores:
     - "Error técnico (ej. falla de conexión con el backend): se muestra un mensaje general de error."
     - "Sin resultados (con o sin filtros aplicados): se muestra un mensaje indicando que no se encontraron registros para mostrar."
